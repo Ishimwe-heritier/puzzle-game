@@ -132,7 +132,7 @@ function moveTile(index) {
 /* ---------------- BACKEND ---------------- */
 
 async function saveScore() {
-  await fetch("http://localhost:5000/api/scores", {
+  await fetch("https://puzzle-game-sc8v.onrender.com/api/scores", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -151,7 +151,7 @@ async function saveScore() {
 }
 
 async function loadLeaderboard() {
-  const res = await fetch("http://localhost:5000/api/scores");
+  const res = await fetch("https://puzzle-game-sc8v.onrender.com/api/scores");
   leaderboard.value = await res.json();
 }
 
