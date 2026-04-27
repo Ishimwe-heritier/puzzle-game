@@ -65,46 +65,46 @@ const showWin = ref(false);
 
 let timer = null;
 
-/* ---------------- GAME SETUP ---------------- */
+/* ---------------- INIT GAME ---------------- */
 
 function generateTiles() {
   const total = gridSize.value * gridSize.value;
+
   tiles.value = Array.from({ length: total - 1 }, (_, i) => i + 1);
   tiles.value.push("");
-  shuffle();
+
+  moves.value = 0;
+  time.value = 0;
+  showWin.value = false;
+
+  clearInterval(timer);
+  timer = null;
 }
+
+/* ---------------- TIMER ---------------- */
 
 function startTimer() {
   if (timer) return;
+
   timer = setInterval(() => {
     time.value++;
   }, 1000);
 }
 
+/* ---------------- SHUFFLE ---------------- */
+
 function shuffle() {
   tiles.value = [...tiles.value].sort(() => Math.random() - 0.5);
+
   moves.value = 0;
   time.value = 0;
+  showWin.value = false;
+
   clearInterval(timer);
   timer = null;
 }
 
 /* ---------------- GAME LOGIC ---------------- */
-
-function checkWin() {
-  const total = gridSize.value * gridSize.value;
-  const win = Array.from({ length: total - 1 }, (_, i) => i + 1);
-  win.push("");
-
-  if (JSON.stringify(tiles.value) === JSON.stringify(win)) {
-    clearInterval(timer);
-
-    saveScore();
-    loadLeaderboard();
-
-    showWin.value = true;
-  }
-}
 
 function moveTile(index) {
   const emptyIndex = tiles.value.indexOf("");
@@ -126,6 +126,22 @@ function moveTile(index) {
     moves.value++;
     startTimer();
     checkWin();
+  }
+}
+
+function checkWin() {
+  const total = gridSize.value * gridSize.value;
+
+  const win = Array.from({ length: total - 1 }, (_, i) => i + 1);
+  win.push("");
+
+  if (JSON.stringify(tiles.value) === JSON.stringify(win)) {
+    clearInterval(timer);
+
+    saveScore();
+    loadLeaderboard();
+
+    showWin.value = true;
   }
 }
 
@@ -155,20 +171,17 @@ async function loadLeaderboard() {
   leaderboard.value = await res.json();
 }
 
-/* ---------------- EXTRA ---------------- */
+/* ---------------- RESET ---------------- */
 
 function resetGame() {
   generateTiles();
 }
 
 function restartGame() {
-  showWin.value = false;
   generateTiles();
-  moves.value = 0;
-  time.value = 0;
 }
 
-/* ---------------- AUTO LOAD ---------------- */
+/* ---------------- LOAD ---------------- */
 
 onMounted(() => {
   generateTiles();
@@ -186,15 +199,10 @@ onMounted(() => {
   color: white;
 }
 
-h1 {
-  font-size: 36px;
-}
-
 .stats {
   display: flex;
   justify-content: center;
   gap: 30px;
-  font-size: 18px;
 }
 
 .controls {
@@ -204,24 +212,13 @@ h1 {
 select,
 button {
   padding: 10px 16px;
-  font-size: 16px;
   border: none;
   border-radius: 10px;
-  margin: 5px;
   cursor: pointer;
 }
 
 button {
   background: #3b82f6;
-  color: white;
-}
-
-button:hover {
-  background: #2563eb;
-}
-
-select {
-  background: #1f2937;
   color: white;
 }
 
@@ -232,25 +229,17 @@ select {
   margin: 30px auto;
   padding: 20px;
   width: fit-content;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
 }
 
 .tile {
   width: 80px;
   height: 80px;
   background: #334155;
-  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  font-size: 22px;
   border-radius: 12px;
-}
-
-.tile:hover {
-  transform: scale(1.05);
 }
 
 .leaderboard {
@@ -262,13 +251,9 @@ select {
   border-radius: 15px;
 }
 
-/* WIN POPUP */
 .win-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0,0,0,0.7);
   display: flex;
   justify-content: center;
@@ -279,6 +264,5 @@ select {
   background: #1e293b;
   padding: 30px;
   border-radius: 15px;
-  text-align: center;
 }
 </style>
